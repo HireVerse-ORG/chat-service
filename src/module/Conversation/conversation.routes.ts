@@ -10,5 +10,8 @@ const controller = container.get<ConversationController>(TYPES.ConversationContr
 const router = Router();
 
 router.get('/list', isAuthenticated, controller.listConversations);
+router.get('/details', isAuthenticated, controller.getConversationDetails);
+
+router.post('/start', isAuthenticated, controller.startConversation);
 
 export const conversationRoutes = router;

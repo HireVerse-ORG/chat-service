@@ -3,7 +3,7 @@ import { UserRole } from "@hireverse/service-common/dist/token/user/userPayload"
 export interface ConversationDTO {
     id: string;
     participants: { id: string; role: UserRole }[];
-    lastMessage: { text: string; sentAt: Date } | null;
+    lastMessage: { text: string; sentAt: Date, senderId: string } | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -14,5 +14,5 @@ export interface CreateConversationDTO {
 
 export interface UpdateConversationLastMessageDTO {
     id: string;
-    lastMessage: { text: string; sentAt: Date };
+    lastMessage: { text: string; sentAt: Date, senderId: string };
 }

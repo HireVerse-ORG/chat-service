@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IConversation extends Document {
   participants: { id: string; role: UserRole }[];
-  lastMessage: { text: string; sentAt: Date } | null;
+  lastMessage: { text: string; sentAt: Date, senderId: string } | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +25,7 @@ const conversationSchema = new Schema<IConversation>(
     },
     lastMessage: {
       type: {
+        senderId: String,
         text: String,
         sentAt: Date,
       },

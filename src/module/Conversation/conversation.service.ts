@@ -39,6 +39,15 @@ export class ConversationService implements IConversationService {
     
         return conversation ? this.toDTO(conversation) : null;
     }
+
+    async getConversationByParticipantIds(participantIds: string[]): Promise<ConversationDTO | null> {
+        const conversation = await this.conversationRepo.findOne({
+            "participants.id": { $all: participantIds } 
+        });
+
+        return conversation ? this.toDTO(conversation) : null;
+    }
+    
     
     async listConversationsByParticiPantId(participantId: string, page: number, limit: number): Promise<IPaginationResponse<ConversationDTO>> {
         const conversation = await this.conversationRepo.paginate({"participants.id": participantId}, page, limit, {sort: {updatedAt: -1}});

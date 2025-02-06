@@ -12,6 +12,10 @@ export default {
     ConversationService: Symbol('ConversationService'),
     ConversationRepository: Symbol('ConversationRepository'),
 
+    // external
+    ProfileService: Symbol('ProfileService'),
+    PaymentService: Symbol('PaymentService'),
+
     // socket
     SocketManager: Symbol('SocketManager'),
     SocketService: Symbol('SocketService'),
