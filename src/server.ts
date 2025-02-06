@@ -5,10 +5,10 @@ import 'reflect-metadata';
 import ExpressServer from './app/express';
 import { checkEnvVariables } from '@hireverse/service-common/dist/utils/envChecker';
 import Database from './core/database';
-import { StartSocketServer, StopSocketServer } from './socket';
+import { StartSocketServer, StopSocketServer } from './app/socket';
 
 (async () => {
-    checkEnvVariables('DATABASE_URL', 'KAFKA_SERVER');
+    checkEnvVariables('DATABASE_URL');
 
     const databaseUrl = process.env.DATABASE_URL!;
     const expressPort = process.env.EXPRESS_PORT || '5006';

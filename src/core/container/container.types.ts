@@ -1,16 +1,21 @@
 
 export default {
-    EmailService: Symbol('EmailService'),
+    // Message
+    MessageController: Symbol('MessageController'),
+    MessageGrpcController: Symbol('MessageGrpcController'),
+    MessageService: Symbol('MessageService'),
+    MessageRepository: Symbol('MessageRepository'),
 
-    // notification
-    NotificationController: Symbol('NotificationController'),
-    NotificationGrpcController: Symbol('NotificationGrpcController'),
-    NotificationService: Symbol('NotificationService'),
-    NotificationRepository: Symbol('NotificationRepository'),
+    // Message
+    ConversationController: Symbol('ConversationController'),
+    ConversationGrpcController: Symbol('ConversationGrpcController'),
+    ConversationService: Symbol('ConversationService'),
+    ConversationRepository: Symbol('ConversationRepository'),
 
     // socket
     SocketManager: Symbol('SocketManager'),
     SocketService: Symbol('SocketService'),
+    SocketController: Symbol('SocketController'),
 
     // kafka
     KafkaProducer: Symbol('KafkaProducer'),
