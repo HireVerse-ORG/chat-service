@@ -9,6 +9,7 @@ export enum MessageStatus {
 export interface IMessage extends Document {
     conversation: string;
     sender: string;
+    recipient: string;
     content: string;
     status: MessageStatus;
     deliveredAt?: Date; 
@@ -20,6 +21,7 @@ const MessageSchema = new Schema<IMessage>(
     {
         conversation: { type: String, required: true },
         sender: { type: String, required: true },
+        recipient: { type: String, required: true },
         content: { type: String, required: true },
         status: {
             type: String,

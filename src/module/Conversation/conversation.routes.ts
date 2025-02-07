@@ -14,4 +14,6 @@ router.get('/details', isAuthenticated, controller.getConversationDetails);
 
 router.post('/start', isAuthenticated, controller.startConversation);
 
+router.get('/:id', isAuthenticated, controller.getConversation);
+
 export const conversationRoutes = router;

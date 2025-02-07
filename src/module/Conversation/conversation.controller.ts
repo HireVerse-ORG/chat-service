@@ -21,9 +21,9 @@ export class ConversationController {
     @inject(TYPES.SocketManager) private socketManager!: ISocketManager;
 
     /**
-    * @route GET /api/chats/conversations/list?page=&limit
-    * @scope Private
-    **/
+     * @route GET /api/chats/conversations/list?page=&limit
+     * @scope Private
+     **/
     public listConversations = asyncWrapper(async (req: AuthRequest, res: Response) => {
         const userId = req.payload?.userId!;
         const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
@@ -31,22 +31,58 @@ export class ConversationController {
 
         const conversations = await this.conversationService.listConversationsByParticiPantId(userId, page, limit);
 
-        const participants = conversations.data.flatMap(c =>
-            c.participants.filter(p => p.id !== userId).map(p => ({ id: p.id, role: p.role }))
+        const participants = conversations.data.flatMap(conversation =>
+            conversation.participants.filter(p => p.id !== userId).map(p => ({ id: p.id, role: p.role }))
         );
 
-        // console.log({ participants });
+        const profilePromises = participants.map(async (p) => {
+            try {
+                if (p.role === "company") {
+                    const { response } = await this.profileService.getCompanyProfileByUserId(p.id);
+                    return { id: p.id, profile: response.profile };
+                } else if (p.role === "seeker") {
+                    const { response } = await this.profileService.getSeekerProfilesByUserId(p.id);
+                    return { id: p.id, profile: response.profile };
+                } else {
+                    return { id: p.id, profile: null };
+                }
+            } catch (error) {
+                return { id: p.id, profile: null };
+            }
+        });
 
-        // want to fetch profile using that id
-        // const conversationWithSenderProfile = {
-        //     ...conversation,
-        //     senderProfile: {
-        //         name: "Google",
-        //         type: "company"
-        //     }
-        // }
+        const profileResults = await Promise.all(profilePromises);
 
-        return res.json(conversations)
+        const profilesMap = new Map<string, any>();
+        profileResults.forEach((result) => {
+            if (result.profile) {
+                profilesMap.set(result.id, result.profile);
+            }
+        });
+
+        const enrichedConversations = conversations.data.map((conversation) => {
+            const otherParticipant = conversation.participants.find(p => p.id !== userId);
+            if (otherParticipant && profilesMap.has(otherParticipant.id)) {
+                const profile = profilesMap.get(otherParticipant.id);
+                return {
+                    ...conversation,
+                    thumbnail: profile.image,         
+                    title: profile.name || profile.profileName || "Unknown",
+                    profilePublicId: profile.companyId || profile.profileUsername || undefined,
+                    profileType: otherParticipant.role,
+                };
+            }
+            return {
+                ...conversation,
+                thumbnail: "",
+                title: ""
+            };
+        });
+
+        return res.json({
+            ...conversations,
+            data: enrichedConversations,
+        });
     });
 
     /**
@@ -67,12 +103,64 @@ export class ConversationController {
         }
 
         const conversation = await this.conversationService.getConversationByParticipantIds(participantIds);
-
+                
         if (!conversation) {
             return res.status(404).json({ message: "Conversation not found" });
         }
 
         return res.json(conversation);
+    });
+
+    /**
+    * @route GET /api/chats/conversations/:id
+    * @scope Private
+    **/
+    public getConversation = asyncWrapper(async (req: AuthRequest, res: Response) => {
+        const userId = req.payload?.userId!;
+        const id = req.params.id;
+
+        const conversation = await this.conversationService.getConversationById(id);
+                
+        if (!conversation) {
+            return res.status(404).json({ message: "Conversation not found" });
+        }
+
+        const otherParticipant = conversation.participants.find(p => p.id !== userId);
+        let otherProfile: { 
+            title: string, 
+            thumbnail?: string;
+            profilePublicId?: string,
+            profileType?: string 
+        } = {title: "Unknown"};
+
+        if (otherParticipant) {
+            try {
+                if (otherParticipant.role === "company") {
+                    const { response } = await this.profileService.getCompanyProfileByUserId(otherParticipant.id);
+                    if (response && response.profile) {
+                        otherProfile = {
+                            title: response.profile.name || "Company",
+                            thumbnail: response.profile.image || undefined,
+                            profilePublicId: response.profile.companyId,
+                            profileType: otherParticipant.role,
+                        };
+                    }
+                } else if (otherParticipant.role === "seeker") {
+                    const { response } = await this.profileService.getSeekerProfilesByUserId(otherParticipant.id);
+                    if (response && response.profile) {
+                        otherProfile = {
+                            title: response.profile.profileName || "Seeker",
+                            thumbnail: response.profile.image || undefined,
+                            profilePublicId: response.profile.profileUsername,
+                            profileType: otherParticipant.role,
+                        };
+                    }
+                }
+            } catch (error) {
+                otherProfile = {title: "Unknown"};
+            }
+        }
+        return res.json({...conversation, ...otherProfile});
     });
 
     /**
@@ -87,6 +175,12 @@ export class ConversationController {
 
         if (!participantId || !participantRole) {
             return res.status(400).json({ message: "participantId and participantRole are required." });
+        }
+
+        const existingOne = await this.conversationService.getConversationByParticipantIds([participantId, userId]);
+
+        if (existingOne) {
+            return res.status(400).json({ message: "Conversation already exist." });
         }
 
         if (!message) {
@@ -111,25 +205,22 @@ export class ConversationController {
             conversation: conversation.id,
             content: message,
             sender: userId,
+            recipient: participantId,
             sentAt: new Date(),
         })
 
         await this.conversationService.UpdateConversationLastMessage({
             id: conversation.id,
-            lastMessage: {
-                senderId: newMessage.sender,
-                sentAt: newMessage.sentAt!,
-                text: newMessage.content,
-            }
+            lastMessageId: newMessage.id,
         })
 
         const participantSocket = await this.socketManager.getSocketId(participantId);
-        if(participantId){
+        if (participantId) {
             this.socketService.emit("new-message", {
                 from: userId,
                 message: newMessage.content
             }, participantSocket);
-            
+
             this.messageService.updateMessageStatus({
                 messageId: newMessage.id,
                 status: MessageStatus.DELIVERED,
@@ -146,22 +237,22 @@ export class ConversationController {
                 followerId: seekerId,
                 followingId: participantId,
             });
-    
+
             if (followResponse.isFollowing) {
-                return true; 
+                return true;
             }
 
-            console.log({followResponse});
-            
-    
+            console.log({ followResponse });
+
+
             const { response: paymentResponse } = await this.paymentService.seekerCanMessage(seekerId);
 
-            console.log({paymentResponse});
-    
+            console.log({ paymentResponse });
+
             if (paymentResponse.canMessage) {
                 return true;
             }
-    
+
             return "Upgrade your plan to start a conversation.";
         } catch (error) {
             return "Internal Server Error.";

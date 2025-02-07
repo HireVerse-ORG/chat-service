@@ -15,11 +15,20 @@ export class MessageController {
     **/
     public listMessages = asyncWrapper(async (req: AuthRequest, res: Response) => {
         const conversationId = req.params.conversationId;
-
         const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
-        
-        const messages = this.meesageService.listMessagesByConversation(conversationId, page, limit);
+
+        const messages = await this.meesageService.listMessagesByConversation(conversationId, page, limit);
         return res.json(messages)
+    });
+
+    /**
+    * @route GET /api/chats/messages/unread-count
+    * @scope Private
+    **/
+    public getCountofUnread = asyncWrapper(async (req: AuthRequest, res: Response) => {
+        const userId = req.payload?.userId!;
+        const count = await this.meesageService.countUnreadMessages(userId);
+        return res.json({count});
     });
 }

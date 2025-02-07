@@ -14,6 +14,7 @@ export interface MessageDTO {
 export interface CreateMessageDTO {
     conversation: string;
     sender: string;
+    recipient: string;
     content: string;
     sentAt?: Date; 
 }

@@ -10,5 +10,6 @@ const controller = container.get<MessageController>(TYPES.MessageController);
 const router = Router();
 
 router.get('/list/:conversationId', isAuthenticated, controller.listMessages);
+router.get('/unread-count', isAuthenticated, controller.getCountofUnread);
 
 export const messageRoutes = router;

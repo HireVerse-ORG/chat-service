@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IConversation extends Document {
   participants: { id: string; role: UserRole }[];
-  lastMessage: { text: string; sentAt: Date, senderId: string } | null;
+  lastMessage: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,6 +13,7 @@ const conversationSchema = new Schema<IConversation>(
     participants: {
       type: [
         {
+          _id: false,
           id: String,
           role: {
             type: String,
@@ -24,12 +25,9 @@ const conversationSchema = new Schema<IConversation>(
       validate: [(val: any[]) => val.length >= 2, 'A conversation must have at least two participants'],
     },
     lastMessage: {
-      type: {
-        senderId: String,
-        text: String,
-        sentAt: Date,
-      },
-      default: null, 
+      type: Schema.Types.ObjectId,
+      ref: 'Message', 
+      default: null,
     },
   },
   { timestamps: true }

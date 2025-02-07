@@ -7,19 +7,6 @@ import { mapGrpcErrorToHttpStatus } from "@hireverse/service-common/dist/utils";
 @injectable()
 export class ProfileService implements IProfileService {
 
-    async getCompanyProfilesByidList(ids: string[]): Promise<RPCServiceResponseDto> {
-        return new Promise((resolve, reject) => {
-            companyProfileClient.GetCompanyProfilesByIdList({ ids }, (error: any | null, response: any) => {
-                if (error) {
-                    const status = mapGrpcErrorToHttpStatus(error);
-                    const message = error.details;
-                    return reject({ status, message, response });
-                }
-
-                return resolve({ status: 200, message: "Profiles Feteched", response });
-            })
-        })
-    }
     
     async getSeekerProfilesByUserId(userId: string) :Promise<RPCServiceResponseDto> {
         return new Promise((resolve, reject) => {
@@ -30,7 +17,22 @@ export class ProfileService implements IProfileService {
                     return reject({ status, message, response });
                 }
     
-                return resolve({ status: 200, message: "Profiles Feteched", response });
+                return resolve({ status: 200, message: "Profile Feteched", response });
+            })
+        })
+
+    }
+
+    async getCompanyProfileByUserId(userId: string) :Promise<RPCServiceResponseDto> {
+        return new Promise((resolve, reject) => {
+            companyProfileClient.GetCompanyProfileByUserId({ userId }, (error: any | null, response: any) => {
+                if (error) {
+                    const status = mapGrpcErrorToHttpStatus(error);
+                    const message = error.details;
+                    return reject({ status, message, response });
+                }
+    
+                return resolve({ status: 200, message: "Profile Feteched", response });
             })
         })
 

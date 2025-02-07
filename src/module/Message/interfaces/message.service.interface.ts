@@ -4,5 +4,6 @@ import { CreateMessageDTO, MessageDTO, UpdateMessageStatusDTO } from "../dto/mes
 export interface IMessageService {
   createMessage(dto: CreateMessageDTO): Promise<MessageDTO>; 
   updateMessageStatus(dto: UpdateMessageStatusDTO): Promise<MessageDTO>; 
-  listMessagesByConversation(conversationId: string, page: number, limit: number): Promise<IPaginationResponse<MessageDTO>>; 
+  listMessagesByConversation(conversationId: string, page: number, limit: number): Promise<IPaginationResponse<MessageDTO>>;
+  countUnreadMessages(recipientId: string): Promise<number>; 
 }

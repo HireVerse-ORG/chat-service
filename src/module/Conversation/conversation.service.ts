@@ -22,8 +22,8 @@ export class ConversationService implements IConversationService {
             throw new BadRequestError("Invalid conversation id");
         }
 
-        const {id, lastMessage} = dto;
-        const conversation = await this.conversationRepo.update(id, {lastMessage});
+        const {id, lastMessageId} = dto;
+        const conversation = await this.conversationRepo.update(id, {lastMessage: lastMessageId});
 
         if(!conversation) {
             throw new BadRequestError("Failed update last message of conversation");
@@ -40,6 +40,15 @@ export class ConversationService implements IConversationService {
         return conversation ? this.toDTO(conversation) : null;
     }
 
+    async getConversationById(id: string): Promise<ConversationDTO | null> {
+        if(!isValidObjectId(id)){
+            throw new BadRequestError("Invalid id");
+        }
+
+        const conversation = await this.conversationRepo.findById(id);
+        return conversation ? this.toDTO(conversation) : null;
+    }
+
     async getConversationByParticipantIds(participantIds: string[]): Promise<ConversationDTO | null> {
         const conversation = await this.conversationRepo.findOne({
             "participants.id": { $all: participantIds } 
@@ -50,7 +59,7 @@ export class ConversationService implements IConversationService {
     
     
     async listConversationsByParticiPantId(participantId: string, page: number, limit: number): Promise<IPaginationResponse<ConversationDTO>> {
-        const conversation = await this.conversationRepo.paginate({"participants.id": participantId}, page, limit, {sort: {updatedAt: -1}});
+        const conversation = await this.conversationRepo.paginate({"participants.id": participantId}, page, limit, {sort: {updatedAt: -1}, populate: "lastMessage"});
         return {...conversation, data: conversation.data.map(this.toDTO)};
     }
 
