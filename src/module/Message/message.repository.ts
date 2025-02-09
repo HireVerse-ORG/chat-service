@@ -20,4 +20,15 @@ export class MessageRepository extends MongoBaseRepository<IMessage> implements 
         }
     }
 
+    async updateAllMessages(filter: RootFilterQuery<IMessage>, data: Partial<IMessage>): Promise<boolean> {
+        try {
+            // console.log({filter});
+            const updated = await this.repository.updateMany(filter, {$set: data});
+            // console.log({updated});
+            return updated.modifiedCount > 0;
+        } catch (error) {
+            throw new InternalError("Failed to update messages");
+        }
+    }
+
 }

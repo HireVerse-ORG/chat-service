@@ -6,12 +6,14 @@ import { ISocketManager } from "./interface/socket.manager.interface";
 import { tokenService } from "../../core/utils/token";
 import { logger } from "../../core/utils/logger";
 import AuthSocket from "./interface/socket.interface";
-import { SocketController } from "./socket.controller";
+import { MessageSocketController } from "./controllers/message.socket.controller";
+import { RoomSocketController } from "./controllers/room.socket.controller";
 
 @injectable()
 export class SocketService implements ISocketService {
     @inject(TYPES.SocketManager) private socketManager!: ISocketManager;
-    @inject(TYPES.SocketController) private socketController!: SocketController;
+    @inject(TYPES.MessageSocketController) private MessageSocketController!: MessageSocketController;
+    @inject(TYPES.RoomSocketController) private RoomSocketController!: RoomSocketController;
 
     private io!: Server;
 
@@ -31,7 +33,9 @@ export class SocketService implements ISocketService {
                 const { userId } = payload;
                 await this.socketManager.addUser(userId, socket.id);
                 socket.payload = payload;
-                this.socketController.initialize(socket);
+
+                this.RoomSocketController.handleConnection(socket);
+                this.MessageSocketController.handleConnection(socket);
 
                 socket.on("disconnect", async () => {
                     try {

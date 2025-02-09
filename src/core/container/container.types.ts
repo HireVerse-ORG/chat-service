@@ -20,6 +20,9 @@ export default {
     SocketManager: Symbol('SocketManager'),
     SocketService: Symbol('SocketService'),
     SocketController: Symbol('SocketController'),
+    MessageSocketController: Symbol('MessageSocketController'),
+    RoomSocketController: Symbol('RoomSocketController'),
+    TypingSocketController: Symbol('TypingSocketController'),
 
     // kafka
     KafkaProducer: Symbol('KafkaProducer'),

@@ -41,7 +41,6 @@ export class MessageService implements IMessageService {
         return this.toDTO(message);
     }
 
-
     async listMessagesByConversation(conversationId: string, page: number, limit: number): Promise<IPaginationResponse<MessageDTO>> {
         const messages =  await this.meesageRepo.paginate({conversation: conversationId}, page, limit, {sort: {sentAt: -1}});
         // console.log({messages});
@@ -55,6 +54,18 @@ export class MessageService implements IMessageService {
             status: { $ne: MessageStatus.READ }
         });
         return count;
+    }
+
+    async readAll(conversation: string, recipient: string): Promise<boolean> {
+        const updated = await this.meesageRepo.updateAllMessages({
+            conversation, 
+            recipient,
+            status: { $ne: MessageStatus.READ } 
+        }, {
+            status: MessageStatus.READ,
+            readAt: new Date(),
+        })
+        return updated;
     }
 
     private toDTO(message: IMessage): MessageDTO {
