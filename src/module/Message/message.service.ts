@@ -56,7 +56,7 @@ export class MessageService implements IMessageService {
         return count;
     }
 
-    async readAll(conversation: string, recipient: string): Promise<boolean> {
+    async readAll(conversation: string, recipient: string): Promise<{readCount: number}> {
         const updated = await this.meesageRepo.updateAllMessages({
             conversation, 
             recipient,
@@ -65,7 +65,18 @@ export class MessageService implements IMessageService {
             status: MessageStatus.READ,
             readAt: new Date(),
         })
-        return updated;
+        return {readCount: updated.modifiedCount};
+    }
+
+    async deliverAll(recipient: string): Promise<boolean> {
+        const updated = await this.meesageRepo.updateAllMessages({
+            recipient,
+            status: { $eq: MessageStatus.SENT } 
+        }, {
+            status: MessageStatus.DELIVERED,
+            deliveredAt: new Date(),
+        })
+        return updated.modifiedCount > 0;;
     }
 
     private toDTO(message: IMessage): MessageDTO {
@@ -73,6 +84,7 @@ export class MessageService implements IMessageService {
             id: message.id,
             conversation: message.conversation,
             sender: message.sender,
+            recipient: message.recipient,
             content: message.content,
             status: message.status,
             deliveredAt: message.deliveredAt,

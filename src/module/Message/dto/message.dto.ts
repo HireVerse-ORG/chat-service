@@ -4,6 +4,7 @@ export interface MessageDTO {
     id: string;
     conversation: string;
     sender: string;
+    recipient: string;
     content: string;
     status: MessageStatus;
     deliveredAt?: Date;

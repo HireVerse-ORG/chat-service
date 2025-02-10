@@ -20,7 +20,10 @@ export class RoomSocketController extends BaseSocketController {
         try {
             socket.join(data.roomId);
             const read = await this.messageService.readAll(data.roomId, socket.payload?.userId!);
-            // console.log({read});
+            if(read.readCount > 0){
+                socket.to(data.roomId).emit('read-all-messages', {userId: socket.payload?.userId});
+                socket.emit('message-read-updated', {conversation: data.roomId, readCount: read.readCount})
+            }
         } catch (error) {
             // console.log(error);
         }

@@ -4,5 +4,6 @@ import { RootFilterQuery } from "mongoose";
 
 export interface IMessageRepository extends IMongoRepository<IMessage>{
     countMessages(filter?: RootFilterQuery<IMessage>): Promise<number>;
-    updateAllMessages(filter: RootFilterQuery<IMessage>, data: Partial<IMessage>): Promise<boolean>;
+    countUnreadConversations(recipient: string): Promise<number>
+    updateAllMessages(filter: RootFilterQuery<IMessage>, data: Partial<IMessage>): Promise<{modifiedCount: number}>;
 }

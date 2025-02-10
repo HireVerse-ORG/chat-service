@@ -1,6 +1,6 @@
 import { MongoBaseRepository } from "@hireverse/service-common/dist/repository";
 import { injectable } from "inversify";
-import Message, { IMessage } from "./message.entity";
+import Message, { IMessage, MessageStatus } from "./message.entity";
 import { IMessageRepository } from "./interfaces/message.repository.interface";
 import { RootFilterQuery } from "mongoose";
 import { InternalError } from "@hireverse/service-common/dist/app.errors";
@@ -20,14 +20,24 @@ export class MessageRepository extends MongoBaseRepository<IMessage> implements 
         }
     }
 
-    async updateAllMessages(filter: RootFilterQuery<IMessage>, data: Partial<IMessage>): Promise<boolean> {
+    async updateAllMessages(filter: RootFilterQuery<IMessage>, data: Partial<IMessage>): Promise<{modifiedCount: number}> {
         try {
-            // console.log({filter});
             const updated = await this.repository.updateMany(filter, {$set: data});
-            // console.log({updated});
-            return updated.modifiedCount > 0;
+            return {modifiedCount: updated.modifiedCount};
         } catch (error) {
             throw new InternalError("Failed to update messages");
+        }
+    }
+
+    async countUnreadConversations(recipient: string): Promise<number> {
+        try {
+            const conversationIds = await this.repository.distinct('conversation', {
+                recipient,
+                status: {$ne: MessageStatus.READ}
+            })
+            return conversationIds.length;
+        } catch (error) {
+            throw new InternalError("Failed to count conversations");
         }
     }
 

@@ -6,5 +6,6 @@ export interface IMessageService {
   updateMessageStatus(dto: UpdateMessageStatusDTO): Promise<MessageDTO>; 
   listMessagesByConversation(conversationId: string, page: number, limit: number): Promise<IPaginationResponse<MessageDTO>>;
   countUnreadMessages(recipientId: string): Promise<number>; 
-  readAll(conversation: string, recipient: string): Promise<boolean>;
+  readAll(conversation: string, recipient: string): Promise<{readCount: number}>;
+  deliverAll(recipient: string): Promise<boolean>;
 }

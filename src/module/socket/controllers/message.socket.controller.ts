@@ -12,12 +12,21 @@ export class MessageSocketController extends BaseSocketController {
     @inject(TYPES.MessageService) private messageService!: IMessageService;
     
     public handleConnection(socket: AuthSocket): void {
+        this.deliverAllMessages(socket);
         this.setupRoutes(socket);
     }
 
     private setupRoutes(socket: AuthSocket) {
         socket.on('send-message', (data) => this.onMessage(socket, data));
         socket.on('read-message', (data) => this.onReadMessage(socket, data));
+    }
+
+    private async deliverAllMessages(socket: AuthSocket): Promise<void> {
+        try {
+            await this.messageService.deliverAll(socket.payload?.userId!);
+        } catch (error) {
+            console.log("error: " + error); 
+        }
     }
 
     private async onMessage(socket: AuthSocket, data: { roomId: string, message: string}) {
