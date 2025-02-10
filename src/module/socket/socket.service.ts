@@ -8,12 +8,14 @@ import { logger } from "../../core/utils/logger";
 import AuthSocket from "./interface/socket.interface";
 import { MessageSocketController } from "./controllers/message.socket.controller";
 import { RoomSocketController } from "./controllers/room.socket.controller";
+import { TypingSocketController } from "./controllers/typing.socket.controller";
 
 @injectable()
 export class SocketService implements ISocketService {
     @inject(TYPES.SocketManager) private socketManager!: ISocketManager;
     @inject(TYPES.MessageSocketController) private MessageSocketController!: MessageSocketController;
     @inject(TYPES.RoomSocketController) private RoomSocketController!: RoomSocketController;
+    @inject(TYPES.TypingSocketController) private TypingSocketController!: TypingSocketController;
 
     private io!: Server;
 
@@ -36,6 +38,7 @@ export class SocketService implements ISocketService {
 
                 this.RoomSocketController.handleConnection(socket);
                 this.MessageSocketController.handleConnection(socket);
+                this.TypingSocketController.handleConnection(socket);
 
                 socket.on("disconnect", async () => {
                     try {
