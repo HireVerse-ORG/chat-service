@@ -12,9 +12,16 @@ export default {
     ConversationService: Symbol('ConversationService'),
     ConversationRepository: Symbol('ConversationRepository'),
 
+    // Meeting
+    MeetingController: Symbol('MeetingController'),
+    MeetingGrpcController: Symbol('MeetingGrpcController'),
+    MeetingService: Symbol('MeetingService'),
+    MeetingRepository: Symbol('MeetingRepository'),
+
     // external
     ProfileService: Symbol('ProfileService'),
     PaymentService: Symbol('PaymentService'),
+    JobService: Symbol('JobService'),
 
     // socket
     SocketManager: Symbol('SocketManager'),

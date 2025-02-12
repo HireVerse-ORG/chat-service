@@ -9,7 +9,7 @@ import Database from './core/database';
 import { StartSocketServer, StopSocketServer } from './app/socket';
 
 (async () => {
-    checkEnvVariables('DATABASE_URL', 'PROFILE_SERVICE_URL', 'PAYMENT_SERVICE_URL');
+    checkEnvVariables('DATABASE_URL', 'PROFILE_SERVICE_URL', 'PAYMENT_SERVICE_URL', 'JOB_SERVICE_URL');
 
     const databaseUrl = process.env.DATABASE_URL!;
     const expressPort = process.env.EXPRESS_PORT || '5006';
