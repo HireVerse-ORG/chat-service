@@ -9,6 +9,7 @@ import AuthSocket from "./interface/socket.interface";
 import { MessageSocketController } from "./controllers/message.socket.controller";
 import { RoomSocketController } from "./controllers/room.socket.controller";
 import { TypingSocketController } from "./controllers/typing.socket.controller";
+import { MeetingSocketController } from "./controllers/meeting.socket.controller";
 
 @injectable()
 export class SocketService implements ISocketService {
@@ -16,6 +17,7 @@ export class SocketService implements ISocketService {
     @inject(TYPES.MessageSocketController) private MessageSocketController!: MessageSocketController;
     @inject(TYPES.RoomSocketController) private RoomSocketController!: RoomSocketController;
     @inject(TYPES.TypingSocketController) private TypingSocketController!: TypingSocketController;
+    @inject(TYPES.MeetingSocketController) private MeetingSocketController!: MeetingSocketController;
 
     private io!: Server;
 
@@ -39,6 +41,7 @@ export class SocketService implements ISocketService {
                 this.RoomSocketController.handleConnection(socket);
                 this.MessageSocketController.handleConnection(socket);
                 this.TypingSocketController.handleConnection(socket);
+                this.MeetingSocketController.handleConnection(socket);
 
                 socket.on("disconnect", async () => {
                     try {
@@ -68,4 +71,12 @@ export class SocketService implements ISocketService {
             socket.on(event, (data) => callback(socket, data));
         });
     }
+
+    join(socketId: string, room: string): void {
+        const socket = this.io.sockets.sockets.get(socketId);
+        if (socket) {
+            socket.join(room);
+        }
+    }
+    
 }

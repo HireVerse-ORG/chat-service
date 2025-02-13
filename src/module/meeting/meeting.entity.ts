@@ -1,3 +1,4 @@
+import { UserRole } from '@hireverse/service-common/dist/token/user/userPayload';
 import { Schema, model, Document } from 'mongoose';
 
 export enum MeetingStatus {
@@ -5,10 +6,16 @@ export enum MeetingStatus {
     Ended = 'ended'
 }
 
+export interface IParticipant {
+    id: string;
+    role: UserRole;
+}
+
 export interface IMeeting extends Document {
     roomId: string;
+    meetingIdentifier?: string;
     host: string;
-    participants: string[];
+    participants: IParticipant[];
     startedAt: Date;
     endedAt?: Date;
     status: MeetingStatus;
@@ -20,17 +27,26 @@ const MeetingSchema = new Schema<IMeeting>({
         required: true,
         unique: true,
     },
+    meetingIdentifier: {
+        type: String
+    },
     host: {
         type: String,
         required: true
     },
     participants: {
-        type: [String],
+        _id: false,
+        type: [
+            {
+                id: { type: String, required: true },
+                role: { type: String, required: true },
+            },
+        ],
         required: true,
         validate: {
-            validator: (participants: string[]) => participants.length > 0,
-            message: 'At least one participant is required'
-        }
+            validator: (participants: any[]) => participants.length > 0,
+            message: 'At least one participant is required',
+        },
     },
     startedAt: {
         type: Date,

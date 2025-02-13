@@ -10,5 +10,6 @@ const controller = container.get<MeetingController>(TYPES.MeetingController);
 const router = Router();
 
 router.post('/start-interview', allowedRoles('company'), controller.startInterview);
+router.get('/room/:roomId', allowedRoles('company', 'seeker'), controller.getRoomDetails);
 
 export const meetingRoutes = router;

@@ -7,6 +7,7 @@ import { ISocketManager } from "./interface/socket.manager.interface";
 import { MessageSocketController } from "./controllers/message.socket.controller";
 import { RoomSocketController } from "./controllers/room.socket.controller";
 import { TypingSocketController } from "./controllers/typing.socket.controller";
+import { MeetingSocketController } from "./controllers/meeting.socket.controller";
 
  
 export function loadSocketContainer(container: Container){
@@ -15,4 +16,5 @@ export function loadSocketContainer(container: Container){
     container.bind<MessageSocketController>(TYPES.MessageSocketController).to(MessageSocketController);    
     container.bind<RoomSocketController>(TYPES.RoomSocketController).to(RoomSocketController);    
     container.bind<TypingSocketController>(TYPES.TypingSocketController).to(TypingSocketController);    
+    container.bind<MeetingSocketController>(TYPES.MeetingSocketController).to(MeetingSocketController);    
 }

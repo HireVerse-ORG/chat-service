@@ -30,6 +30,7 @@ export default {
     MessageSocketController: Symbol('MessageSocketController'),
     RoomSocketController: Symbol('RoomSocketController'),
     TypingSocketController: Symbol('TypingSocketController'),
+    MeetingSocketController: Symbol('MeetingSocketController'),
 
     // kafka
     KafkaProducer: Symbol('KafkaProducer'),
