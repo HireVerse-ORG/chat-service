@@ -6,12 +6,16 @@ import { AuthRequest } from "@hireverse/service-common/dist/token/user/userReque
 import { IJobService } from "../external/job/job.service.interface";
 import { Response } from "express";
 import { IProfileService } from "../external/profile/profile.service.interface";
+import { ISocketService } from "../socket/interface/socket.service.interface";
+import { ISocketManager } from "../socket/interface/socket.manager.interface";
 
 @injectable()
 export class MeetingController {
     @inject(TYPES.MeetingService) private meesageService!: IMeetingService;
     @inject(TYPES.JobService) private jobService!: IJobService;
     @inject(TYPES.ProfileService) private profileService!: IProfileService;
+    @inject(TYPES.SocketService) private socketService!: ISocketService;
+    @inject(TYPES.SocketManager) private socketManager!: ISocketManager;
 
     /**
     * @route POST /api/chats/meeting/start-interview
@@ -39,6 +43,14 @@ export class MeetingController {
                 {id: interview.applicantId, role: "seeker"},
                 {id: interview.interviewerId, role: "company"}
             ], interviewId);
+
+            const participantSocket = await this.socketManager.getSocketId(interview.applicantId);
+            if(participantSocket){
+                console.log(participantSocket);
+                this.socketService.emit('meeting-started', {roomId: meeting.roomId, interviewId}, participantSocket);
+                console.log("emitted");
+            }
+
             return res.json(meeting);
 
         } catch (error) {
